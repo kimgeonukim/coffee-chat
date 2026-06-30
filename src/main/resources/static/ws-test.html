@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: monospace; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        input, textarea { width: 100%; box-sizing: border-box; padding: 6px; margin: 4px 0; }
+        button { padding: 6px 14px; margin: 4px 2px; cursor: pointer; }
+        #log { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: #f9f9f9; }
+        .ok  { color: green; } .err { color: red; } .msg { color: #333; }
+        fieldset { margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+<h2>WebSocket STOMP Chat Test</h2>
+
+<fieldset>
+    <legend>1. 연결 설정</legend>
+    <label>JWT Token</label>
+    <input id="token" placeholder="로그인 후 발급받은 accessToken 입력" />
+    <label>Room ID</label>
+    <input id="roomId" value="1" type="number" />
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</fieldset>
+
+<fieldset>
+    <legend>2. 메시지 전송</legend>
+    <input id="msgInput" placeholder="메시지 입력" />
+    <button onclick="sendMessage()">Send</button>
+</fieldset>
+
+<fieldset>
+    <legend>로그</legend>
+    <div id="log"></div>
+    <button onclick="document.getElementById('log').innerHTML=''">Clear</button>
+</fieldset>
+
+<script>
+    let stompClient = null;
+
+    function log(text, cls) {
+        const el = document.getElementById('log');
+        el.innerHTML += `<div class="${cls || ''}">[${new Date().toLocaleTimeString()}] ${text}</div>`;
+        el.scrollTop = el.scrollHeight;
+    }
+
+    function connect() {
+        const token = document.getElementById('token').value.trim();
+        const roomId = document.getElementById('roomId').value.trim();
+        if (!token) { alert('토큰을 입력하세요'); return; }
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect(
+            { Authorization: 'Bearer ' + token },
+            () => {
+                log('✅ Connected', 'ok');
+                stompClient.subscribe('/topic/chat/' + roomId, (msg) => {
+                    const body = JSON.parse(msg.body);
+                    log(`💬 [${body.senderNickname}] ${body.content}`, 'msg');
+                });
+                log(`📡 Subscribed to /topic/chat/${roomId}`, 'ok');
+            },
+            (err) => log('❌ Error: ' + err, 'err')
+        );
+    }
+
+    function disconnect() {
+        if (stompClient) { stompClient.disconnect(); log('🔌 Disconnected', 'err'); }
+    }
+
+    function sendMessage() {
+        if (!stompClient || !stompClient.connected) { alert('먼저 Connect 하세요'); return; }
+        const content = document.getElementById('msgInput').value.trim();
+        const roomId = parseInt(document.getElementById('roomId').value);
+        if (!content) return;
+
+        stompClient.send('/app/chat.send', {}, JSON.stringify({
+            roomId: roomId,
+            content: content,
+            messageType: 'TEXT'
+        }));
+        document.getElementById('msgInput').value = '';
+        log(`📤 Sent: ${content}`, 'ok');
+    }
+
+    document.getElementById('msgInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+</body>
+</html>
