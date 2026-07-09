@@ -25,7 +25,19 @@ public enum ErrorCode {
 
     // Chat
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CH001", "Chat room not found"),
-    NOT_CHAT_ROOM_MEMBER(HttpStatus.FORBIDDEN, "CH002", "Not a member of this chat room");
+    NOT_CHAT_ROOM_MEMBER(HttpStatus.FORBIDDEN, "CH002", "Not a member of this chat room"),
+
+    // Post
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "Post not found"),
+    NOT_POST_AUTHOR(HttpStatus.FORBIDDEN, "P002", "Not the author of this post"),
+    POST_ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "P003", "Post is already closed"),
+
+    // CoffeeChat Application
+    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "APP001", "Application not found"),
+    CANNOT_APPLY_OWN_POST(HttpStatus.BAD_REQUEST, "APP002", "Cannot apply to your own post"),
+    ALREADY_APPLIED(HttpStatus.CONFLICT, "APP003", "Already applied to this post"),
+    APPLICATION_NOT_PENDING(HttpStatus.BAD_REQUEST, "APP004", "Application is not in pending status"),
+    NOT_APPLICATION_RECEIVER(HttpStatus.FORBIDDEN, "APP005", "Not the receiver of this application");
 
     private final HttpStatus httpStatus;
     private final String code;

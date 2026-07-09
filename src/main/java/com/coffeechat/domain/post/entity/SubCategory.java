@@ -1,0 +1,124 @@
+package com.coffeechat.domain.post.entity;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum SubCategory {
+
+    // IT_SW
+    BACKEND(Category.IT_SW),
+    FRONTEND(Category.IT_SW),
+    MOBILE(Category.IT_SW),
+    DATA(Category.IT_SW),
+    UI_UX(Category.IT_SW),
+    PM(Category.IT_SW),
+    DEVOPS(Category.IT_SW),
+    AI_ML(Category.IT_SW),
+    SECURITY(Category.IT_SW),
+    QA(Category.IT_SW),
+
+    // BUSINESS_FINANCE
+    ACCOUNTING(Category.BUSINESS_FINANCE),
+    MARKETING(Category.BUSINESS_FINANCE),
+    HR(Category.BUSINESS_FINANCE),
+    CONSULTING(Category.BUSINESS_FINANCE),
+    INVESTMENT(Category.BUSINESS_FINANCE),
+    BANKING(Category.BUSINESS_FINANCE),
+    INSURANCE(Category.BUSINESS_FINANCE),
+
+    // LAW
+    CIVIL_LAW(Category.LAW),
+    CRIMINAL_LAW(Category.LAW),
+    CORPORATE_LAW(Category.LAW),
+    LABOR_LAW(Category.LAW),
+    PATENT(Category.LAW),
+
+    // MEDICAL_HEALTH
+    MEDICINE(Category.MEDICAL_HEALTH),
+    NURSING(Category.MEDICAL_HEALTH),
+    PHARMACY(Category.MEDICAL_HEALTH),
+    DENTISTRY(Category.MEDICAL_HEALTH),
+    PUBLIC_HEALTH(Category.MEDICAL_HEALTH),
+    PHYSICAL_THERAPY(Category.MEDICAL_HEALTH),
+
+    // EDUCATION
+    ELEMENTARY(Category.EDUCATION),
+    SECONDARY(Category.EDUCATION),
+    SPECIAL_EDUCATION(Category.EDUCATION),
+    EDUCATION_ADMIN(Category.EDUCATION),
+    PRIVATE_TUTORING(Category.EDUCATION),
+
+    // ENGINEERING
+    ARCHITECTURE(Category.ENGINEERING),
+    CIVIL_ENGINEERING(Category.ENGINEERING),
+    MECHANICAL(Category.ENGINEERING),
+    ELECTRICAL(Category.ENGINEERING),
+    CHEMICAL(Category.ENGINEERING),
+    ENVIRONMENTAL(Category.ENGINEERING),
+    INDUSTRIAL(Category.ENGINEERING),
+
+    // DESIGN_ART
+    GRAPHIC_DESIGN(Category.DESIGN_ART),
+    FASHION(Category.DESIGN_ART),
+    INTERIOR(Category.DESIGN_ART),
+    FINE_ART(Category.DESIGN_ART),
+    MUSIC(Category.DESIGN_ART),
+    FILM(Category.DESIGN_ART),
+
+    // MEDIA
+    JOURNALISM(Category.MEDIA),
+    BROADCASTING(Category.MEDIA),
+    ADVERTISING(Category.MEDIA),
+    PR(Category.MEDIA),
+    CONTENT_CREATION(Category.MEDIA),
+
+    // HUMANITIES_SOCIAL
+    PHILOSOPHY(Category.HUMANITIES_SOCIAL),
+    HISTORY(Category.HUMANITIES_SOCIAL),
+    PSYCHOLOGY(Category.HUMANITIES_SOCIAL),
+    SOCIOLOGY(Category.HUMANITIES_SOCIAL),
+    LITERATURE(Category.HUMANITIES_SOCIAL),
+    LINGUISTICS(Category.HUMANITIES_SOCIAL),
+    POLITICAL_SCIENCE(Category.HUMANITIES_SOCIAL),
+
+    // NATURAL_SCIENCE
+    PHYSICS(Category.NATURAL_SCIENCE),
+    CHEMISTRY(Category.NATURAL_SCIENCE),
+    BIOLOGY(Category.NATURAL_SCIENCE),
+    MATHEMATICS(Category.NATURAL_SCIENCE),
+    GEOLOGY(Category.NATURAL_SCIENCE),
+    ASTRONOMY(Category.NATURAL_SCIENCE),
+
+    // PUBLIC_SERVICE
+    GOVERNMENT(Category.PUBLIC_SERVICE),
+    MILITARY(Category.PUBLIC_SERVICE),
+    POLICE_FIRE(Category.PUBLIC_SERVICE),
+    DIPLOMACY(Category.PUBLIC_SERVICE),
+    SOCIAL_WELFARE(Category.PUBLIC_SERVICE),
+
+    // RETAIL_SERVICE
+    FOOD_BEVERAGE(Category.RETAIL_SERVICE),
+    HOSPITALITY(Category.RETAIL_SERVICE),
+    DISTRIBUTION(Category.RETAIL_SERVICE),
+    REAL_ESTATE(Category.RETAIL_SERVICE),
+
+    // MANUFACTURING
+    AUTOMOTIVE(Category.MANUFACTURING),
+    SEMICONDUCTOR(Category.MANUFACTURING),
+    TEXTILE(Category.MANUFACTURING),
+    FOOD_PRODUCTION(Category.MANUFACTURING),
+
+    // AGRICULTURE_ENVIRONMENT
+    FARMING(Category.AGRICULTURE_ENVIRONMENT),
+    FORESTRY(Category.AGRICULTURE_ENVIRONMENT),
+    FISHERY(Category.AGRICULTURE_ENVIRONMENT),
+    ENVIRONMENT_CONSULTING(Category.AGRICULTURE_ENVIRONMENT);
+
+    private final Category parent;
+
+    public boolean belongsTo(Category category) {
+        return this.parent == category;
+    }
+}
