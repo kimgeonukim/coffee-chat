@@ -69,6 +69,24 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok());
     }
 
+    @Operation(summary = "게시글 키워드 검색")
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Slice<PostResponse>>> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.ok(postService.searchPosts(keyword, page, size)));
+    }
+
+    @Operation(summary = "내가 쓴 글 목록")
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<Slice<PostResponse>>> getMyPosts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.ok(postService.getMyPosts(userDetails.getUserId(), page, size)));
+    }
+
     @Operation(summary = "게시글 모집 마감")
     @PatchMapping("/{postId}/close")
     public ResponseEntity<ApiResponse<Void>> close(

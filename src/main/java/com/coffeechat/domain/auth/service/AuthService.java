@@ -1,6 +1,7 @@
 package com.coffeechat.domain.auth.service;
 
 import com.coffeechat.domain.auth.dto.LoginRequest;
+import com.coffeechat.domain.auth.dto.RefreshTokenRequest;
 import com.coffeechat.domain.auth.dto.SignUpRequest;
 import com.coffeechat.domain.auth.dto.TokenResponse;
 import com.coffeechat.domain.user.entity.User;
@@ -8,6 +9,7 @@ import com.coffeechat.domain.user.entity.UserRole;
 import com.coffeechat.domain.user.repository.UserRepository;
 import com.coffeechat.global.exception.BusinessException;
 import com.coffeechat.global.exception.ErrorCode;
+import com.coffeechat.global.security.CustomUserDetailsService;
 import com.coffeechat.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService customUserDetailsService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
@@ -70,6 +74,37 @@ public class AuthService {
         } catch (BadCredentialsException e) {
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
+    }
+
+    public TokenResponse refresh(RefreshTokenRequest request) {
+        String refreshToken = request.refreshToken();
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        String email = jwtTokenProvider.getSubject(refreshToken);
+        String stored = (String) redisTemplate.opsForValue().get(REFRESH_TOKEN_KEY + email);
+
+        if (stored == null || !stored.equals(refreshToken)) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
+
+        redisTemplate.opsForValue().set(
+                REFRESH_TOKEN_KEY + email,
+                newRefreshToken,
+                7,
+                TimeUnit.DAYS
+        );
+
+        return TokenResponse.of(newAccessToken, newRefreshToken);
     }
 
     public void logout(String email) {

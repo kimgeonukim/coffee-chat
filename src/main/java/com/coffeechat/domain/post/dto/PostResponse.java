@@ -15,6 +15,7 @@ public record PostResponse(
         Long authorId,
         String authorNickname,
         boolean closed,
+        long viewCount,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -28,6 +29,7 @@ public record PostResponse(
                 post.getAuthor().getId(),
                 post.getAuthor().getNickname(),
                 post.isClosed(),
+                post.getViewCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );

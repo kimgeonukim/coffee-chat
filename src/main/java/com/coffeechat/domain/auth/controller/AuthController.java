@@ -1,6 +1,7 @@
 package com.coffeechat.domain.auth.controller;
 
 import com.coffeechat.domain.auth.dto.LoginRequest;
+import com.coffeechat.domain.auth.dto.RefreshTokenRequest;
 import com.coffeechat.domain.auth.dto.SignUpRequest;
 import com.coffeechat.domain.auth.dto.TokenResponse;
 import com.coffeechat.domain.auth.service.AuthService;
@@ -34,6 +35,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(authService.login(request)));
+    }
+
+    @Operation(summary = "Access Token 재발급")
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<TokenResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(authService.refresh(request)));
     }
 
     @Operation(summary = "로그아웃")

@@ -40,6 +40,9 @@ public class Post {
     @Column(nullable = false)
     private boolean closed;
 
+    @Column(nullable = false)
+    private long viewCount;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -55,6 +58,7 @@ public class Post {
         this.subCategory = subCategory;
         this.author = author;
         this.closed = false;
+        this.viewCount = 0;
     }
 
     public void update(String title, String content, Category category, SubCategory subCategory) {
@@ -66,6 +70,10 @@ public class Post {
 
     public void close() {
         this.closed = true;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 
     public boolean isAuthor(Long userId) {

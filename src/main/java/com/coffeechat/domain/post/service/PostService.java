@@ -61,10 +61,22 @@ public class PostService {
         return posts.map(PostResponse::from);
     }
 
+    @Transactional
     public PostResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        post.increaseViewCount();
         return PostResponse.from(post);
+    }
+
+    public Slice<PostResponse> searchPosts(String keyword, int page, int size) {
+        return postRepository.searchByKeyword(keyword, PageRequest.of(page, size))
+                .map(PostResponse::from);
+    }
+
+    public Slice<PostResponse> getMyPosts(Long userId, int page, int size) {
+        return postRepository.findByAuthorId(userId, PageRequest.of(page, size))
+                .map(PostResponse::from);
     }
 
     @Transactional

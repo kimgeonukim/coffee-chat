@@ -19,4 +19,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.category = :category AND p.subCategory = :subCategory ORDER BY p.createdAt DESC")
     Slice<Post> findByCategoryAndSubCategory(@Param("category") Category category, @Param("subCategory") SubCategory subCategory, Pageable pageable);
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.title LIKE %:keyword% OR p.content LIKE %:keyword% ORDER BY p.createdAt DESC")
+    Slice<Post> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.author.id = :authorId ORDER BY p.createdAt DESC")
+    Slice<Post> findByAuthorId(@Param("authorId") Long authorId, Pageable pageable);
 }
