@@ -7,8 +7,13 @@ import com.coffeechat.domain.chat.repository.ChatRoomMemberRepository;
 import com.coffeechat.domain.chat.repository.ChatRoomRepository;
 import com.coffeechat.domain.coffeechat.dto.ApplicationResponse;
 import com.coffeechat.domain.coffeechat.dto.ApplyRequest;
+import com.coffeechat.domain.coffeechat.dto.ReviewRequest;
+import com.coffeechat.domain.coffeechat.dto.ReviewResponse;
+import com.coffeechat.domain.coffeechat.dto.ScheduleRequest;
 import com.coffeechat.domain.coffeechat.entity.CoffeeChatApplication;
+import com.coffeechat.domain.coffeechat.entity.CoffeeChatReview;
 import com.coffeechat.domain.coffeechat.repository.CoffeeChatApplicationRepository;
+import com.coffeechat.domain.coffeechat.repository.CoffeeChatReviewRepository;
 import com.coffeechat.domain.notification.service.SseEmitterService;
 import com.coffeechat.domain.post.entity.Post;
 import com.coffeechat.domain.post.repository.PostRepository;
@@ -21,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +34,7 @@ import java.util.List;
 public class CoffeeChatApplicationService {
 
     private final CoffeeChatApplicationRepository applicationRepository;
+    private final CoffeeChatReviewRepository reviewRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -126,6 +133,96 @@ public class CoffeeChatApplicationService {
         );
 
         return ApplicationResponse.from(application);
+    }
+
+    @Transactional
+    public ApplicationResponse schedule(Long userId, Long applicationId, ScheduleRequest request) {
+        CoffeeChatApplication application = getApplicationOrThrow(applicationId);
+
+        if (!application.isParticipant(userId)) {
+            throw new BusinessException(ErrorCode.NOT_APPLICATION_PARTICIPANT);
+        }
+        if (!application.isAccepted()) {
+            throw new BusinessException(ErrorCode.APPLICATION_NOT_ACCEPTED);
+        }
+
+        application.schedule(request.scheduledAt());
+
+        Long otherId = application.getApplicant().getId().equals(userId)
+                ? application.getReceiver().getId()
+                : application.getApplicant().getId();
+
+        User me = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        sseEmitterService.notify(
+                otherId,
+                "scheduleProposed",
+                me.getNickname() + "님이 커피챗 일정을 " + request.scheduledAt() + "으로 제안했습니다."
+        );
+
+        return ApplicationResponse.from(application);
+    }
+
+    @Transactional
+    public ApplicationResponse complete(Long userId, Long applicationId) {
+        CoffeeChatApplication application = getApplicationOrThrow(applicationId);
+
+        if (!application.isParticipant(userId)) {
+            throw new BusinessException(ErrorCode.NOT_APPLICATION_PARTICIPANT);
+        }
+        if (!application.isAccepted()) {
+            throw new BusinessException(ErrorCode.APPLICATION_NOT_ACCEPTED);
+        }
+
+        application.complete();
+
+        Long otherId = application.getApplicant().getId().equals(userId)
+                ? application.getReceiver().getId()
+                : application.getApplicant().getId();
+
+        sseEmitterService.notify(otherId, "coffeeChatCompleted", "커피챗이 완료 처리되었습니다. 후기를 남겨보세요!");
+
+        return ApplicationResponse.from(application);
+    }
+
+    @Transactional
+    public ReviewResponse submitReview(Long reviewerId, Long applicationId, ReviewRequest request) {
+        CoffeeChatApplication application = getApplicationOrThrow(applicationId);
+
+        if (!application.isParticipant(reviewerId)) {
+            throw new BusinessException(ErrorCode.NOT_APPLICATION_PARTICIPANT);
+        }
+        if (!application.isCompleted()) {
+            throw new BusinessException(ErrorCode.APPLICATION_NOT_COMPLETED);
+        }
+        if (reviewRepository.existsByApplicationIdAndReviewerId(applicationId, reviewerId)) {
+            throw new BusinessException(ErrorCode.ALREADY_REVIEWED);
+        }
+
+        User reviewer = userRepository.findById(reviewerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        User reviewee = application.getApplicant().getId().equals(reviewerId)
+                ? application.getReceiver()
+                : application.getApplicant();
+
+        CoffeeChatReview review = CoffeeChatReview.builder()
+                .application(application)
+                .reviewer(reviewer)
+                .reviewee(reviewee)
+                .rating(request.rating())
+                .comment(request.comment())
+                .build();
+
+        reviewRepository.save(review);
+        return ReviewResponse.from(review);
+    }
+
+    public List<ReviewResponse> getReviewsByUser(Long userId) {
+        return reviewRepository.findByRevieweeId(userId).stream()
+                .map(ReviewResponse::from)
+                .toList();
     }
 
     private CoffeeChatApplication getApplicationOrThrow(Long applicationId) {

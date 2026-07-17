@@ -16,6 +16,7 @@ public record ApplicationResponse(
         String message,
         ApplicationStatus status,
         Long chatRoomId,
+        LocalDateTime scheduledAt,
         LocalDateTime createdAt
 ) {
     public static ApplicationResponse from(CoffeeChatApplication application) {
@@ -30,6 +31,7 @@ public record ApplicationResponse(
                 application.getMessage(),
                 application.getStatus(),
                 application.getChatRoom() != null ? application.getChatRoom().getId() : null,
+                application.getScheduledAt(),
                 application.getCreatedAt()
         );
     }

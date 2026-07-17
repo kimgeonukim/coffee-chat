@@ -44,6 +44,8 @@ public class CoffeeChatApplication {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
+    private LocalDateTime scheduledAt;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -70,7 +72,27 @@ public class CoffeeChatApplication {
         return this.status == ApplicationStatus.PENDING;
     }
 
+    public boolean isAccepted() {
+        return this.status == ApplicationStatus.ACCEPTED;
+    }
+
+    public boolean isCompleted() {
+        return this.status == ApplicationStatus.COMPLETED;
+    }
+
+    public void schedule(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+    }
+
+    public void complete() {
+        this.status = ApplicationStatus.COMPLETED;
+    }
+
     public boolean isReceiver(Long userId) {
         return this.receiver.getId().equals(userId);
+    }
+
+    public boolean isParticipant(Long userId) {
+        return this.applicant.getId().equals(userId) || this.receiver.getId().equals(userId);
     }
 }

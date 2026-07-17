@@ -37,7 +37,11 @@ public enum ErrorCode {
     CANNOT_APPLY_OWN_POST(HttpStatus.BAD_REQUEST, "APP002", "Cannot apply to your own post"),
     ALREADY_APPLIED(HttpStatus.CONFLICT, "APP003", "Already applied to this post"),
     APPLICATION_NOT_PENDING(HttpStatus.BAD_REQUEST, "APP004", "Application is not in pending status"),
-    NOT_APPLICATION_RECEIVER(HttpStatus.FORBIDDEN, "APP005", "Not the receiver of this application");
+    NOT_APPLICATION_RECEIVER(HttpStatus.FORBIDDEN, "APP005", "Not the receiver of this application"),
+    NOT_APPLICATION_PARTICIPANT(HttpStatus.FORBIDDEN, "APP006", "Not a participant of this application"),
+    APPLICATION_NOT_ACCEPTED(HttpStatus.BAD_REQUEST, "APP007", "Application is not in accepted status"),
+    APPLICATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "APP008", "Application is not completed"),
+    ALREADY_REVIEWED(HttpStatus.CONFLICT, "APP009", "Already submitted a review for this application");
 
     private final HttpStatus httpStatus;
     private final String code;

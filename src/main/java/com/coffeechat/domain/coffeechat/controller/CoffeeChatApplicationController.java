@@ -2,6 +2,9 @@ package com.coffeechat.domain.coffeechat.controller;
 
 import com.coffeechat.domain.coffeechat.dto.ApplicationResponse;
 import com.coffeechat.domain.coffeechat.dto.ApplyRequest;
+import com.coffeechat.domain.coffeechat.dto.ReviewRequest;
+import com.coffeechat.domain.coffeechat.dto.ReviewResponse;
+import com.coffeechat.domain.coffeechat.dto.ScheduleRequest;
 import com.coffeechat.domain.coffeechat.service.CoffeeChatApplicationService;
 import com.coffeechat.global.response.ApiResponse;
 import com.coffeechat.global.security.CustomUserDetails;
@@ -61,5 +64,38 @@ public class CoffeeChatApplicationController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long applicationId) {
         return ResponseEntity.ok(ApiResponse.ok(applicationService.reject(userDetails.getUserId(), applicationId)));
+    }
+
+    @Operation(summary = "커피챗 일정 제안/수정 (신청자·수락자 모두 가능)")
+    @PatchMapping("/api/applications/{applicationId}/schedule")
+    public ResponseEntity<ApiResponse<ApplicationResponse>> schedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long applicationId,
+            @Valid @RequestBody ScheduleRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.schedule(userDetails.getUserId(), applicationId, request)));
+    }
+
+    @Operation(summary = "커피챗 완료 처리 (신청자·수락자 모두 가능)")
+    @PatchMapping("/api/applications/{applicationId}/complete")
+    public ResponseEntity<ApiResponse<ApplicationResponse>> complete(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long applicationId) {
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.complete(userDetails.getUserId(), applicationId)));
+    }
+
+    @Operation(summary = "후기/평점 작성 (완료 후 1인 1회)")
+    @PostMapping("/api/applications/{applicationId}/reviews")
+    public ResponseEntity<ApiResponse<ReviewResponse>> submitReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long applicationId,
+            @Valid @RequestBody ReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(applicationService.submitReview(userDetails.getUserId(), applicationId, request)));
+    }
+
+    @Operation(summary = "특정 유저의 받은 후기 목록")
+    @GetMapping("/api/users/{userId}/reviews")
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long userId) {
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.getReviewsByUser(userId)));
     }
 }
