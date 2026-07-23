@@ -6,9 +6,10 @@ public record UserResponse(
         Long id,
         String email,
         String nickname,
-        String bio
+        String bio,
+        String profileImageUrl
 ) {
     public static UserResponse from(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getBio());
+        return new UserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getBio(), user.getProfileImageUrl());
     }
 }

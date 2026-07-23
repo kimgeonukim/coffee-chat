@@ -33,6 +33,18 @@ jwt:
   access-token-expiry: 1800000    # 30분 (ms)
   refresh-token-expiry: 604800000 # 7일 (ms)
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+r2:
+  account-id: ${R2_ACCOUNT_ID}
+  access-key: ${R2_ACCESS_KEY}
+  secret-key: ${R2_SECRET_KEY}
+  bucket: ${R2_BUCKET}
+  public-url: ${R2_PUBLIC_URL}
+
 springdoc:
   api-docs:
     path: /api-docs

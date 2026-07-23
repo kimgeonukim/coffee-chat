@@ -31,6 +31,8 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    private String profileImageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
@@ -53,6 +55,10 @@ public class User {
     public void updateProfile(String nickname, String bio) {
         this.nickname = nickname;
         this.bio = bio;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void updatePassword(String encodedPassword) {

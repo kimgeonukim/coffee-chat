@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,6 +37,21 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(userService.updateProfile(userDetails.getUserId(), request)));
+    }
+
+    @Operation(summary = "프로필 이미지 업로드 (JPG/PNG/WEBP, 최대 5MB)")
+    @PostMapping(value = "/me/profile-image", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<UserResponse>> uploadProfileImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.ok(userService.uploadProfileImage(userDetails.getUserId(), file)));
+    }
+
+    @Operation(summary = "프로필 이미지 삭제")
+    @DeleteMapping("/me/profile-image")
+    public ResponseEntity<ApiResponse<UserResponse>> deleteProfileImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.ok(userService.deleteProfileImage(userDetails.getUserId())));
     }
 
     @Operation(summary = "유저 검색 (닉네임/이메일)")

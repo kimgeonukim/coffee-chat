@@ -6,9 +6,11 @@ import com.coffeechat.domain.user.entity.User;
 import com.coffeechat.domain.user.repository.UserRepository;
 import com.coffeechat.global.exception.BusinessException;
 import com.coffeechat.global.exception.ErrorCode;
+import com.coffeechat.global.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     public UserResponse getUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -36,6 +39,27 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         user.updateProfile(request.nickname(), request.bio());
+        return UserResponse.from(user);
+    }
+
+    @Transactional
+    public UserResponse uploadProfileImage(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        if (user.getProfileImageUrl() != null) {
+            fileStorageService.delete(user.getProfileImageUrl());
+        }
+        String url = fileStorageService.store(file);
+        user.updateProfileImage(url);
+        return UserResponse.from(user);
+    }
+
+    @Transactional
+    public UserResponse deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        fileStorageService.delete(user.getProfileImageUrl());
+        user.updateProfileImage(null);
         return UserResponse.from(user);
     }
 }

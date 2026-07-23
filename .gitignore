@@ -44,3 +44,6 @@ out/
 
 ### Generated QueryDSL Q-classes ###
 src/main/generated/
+
+### Local secrets ###
+src/main/resources/application-local.yml
