@@ -11,6 +11,6 @@ public interface CoffeeChatReviewRepository extends JpaRepository<CoffeeChatRevi
 
     boolean existsByApplicationIdAndReviewerId(Long applicationId, Long reviewerId);
 
-    @Query("SELECT r FROM CoffeeChatReview r JOIN FETCH r.reviewer WHERE r.reviewee.id = :revieweeId ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM CoffeeChatReview r JOIN FETCH r.reviewer JOIN FETCH r.reviewee WHERE r.reviewee.id = :revieweeId ORDER BY r.createdAt DESC")
     List<CoffeeChatReview> findByRevieweeId(@Param("revieweeId") Long revieweeId);
 }

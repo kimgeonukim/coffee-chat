@@ -34,7 +34,8 @@ public class FileStorageService {
         if (file.isEmpty()) {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "파일이 비어있습니다");
         }
-        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "JPG, PNG, WEBP 형식만 허용됩니다");
         }
 
@@ -45,7 +46,7 @@ public class FileStorageService {
                     PutObjectRequest.builder()
                             .bucket(bucket)
                             .key(key)
-                            .contentType(file.getContentType())
+                            .contentType(contentType)
                             .contentLength(file.getSize())
                             .build(),
                     RequestBody.fromBytes(file.getBytes())

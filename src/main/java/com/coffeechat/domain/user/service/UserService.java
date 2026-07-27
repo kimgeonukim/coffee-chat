@@ -46,11 +46,12 @@ public class UserService {
     public UserResponse uploadProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        if (user.getProfileImageUrl() != null) {
-            fileStorageService.delete(user.getProfileImageUrl());
+        String oldUrl = user.getProfileImageUrl();
+        String newUrl = fileStorageService.store(file); // 실패 시 기존 이미지 보존
+        user.updateProfileImage(newUrl);
+        if (oldUrl != null) {
+            fileStorageService.delete(oldUrl); // 업로드 성공 후 구 이미지 삭제
         }
-        String url = fileStorageService.store(file);
-        user.updateProfileImage(url);
         return UserResponse.from(user);
     }
 
@@ -58,6 +59,9 @@ public class UserService {
     public UserResponse deleteProfileImage(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        if (user.getProfileImageUrl() == null) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "프로필 이미지가 없습니다");
+        }
         fileStorageService.delete(user.getProfileImageUrl());
         user.updateProfileImage(null);
         return UserResponse.from(user);
