@@ -4,6 +4,13 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+r2:
+  account-id: fae47ec4c7ae4aeff2c01ca0ef5e24fb
+  access-key: d243181eab4995a6986f88eb2eefb7da
+  secret-key: 609963f1887d5833b92ab1cb2c0b18d01c96898205d8e3c21c617fbf923bb78c
+  bucket: coffeechat
+  public-url: https://pub-92f9272b5eb1427ea3460d9770c40ab9.r2.dev
+
 logging:
   level:
     com.coffeechat: DEBUG

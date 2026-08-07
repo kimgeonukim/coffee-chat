@@ -2,11 +2,16 @@ server:
   port: ${PORT:8080}
 
 spring:
+  main:
+    lazy-initialization: true
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:coffeechat}?sslmode=require&prepareThreshold=0
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 3
 
   jpa:
     hibernate:
@@ -25,6 +30,8 @@ spring:
       password: ${REDIS_PASSWORD:}
       ssl:
         enabled: ${REDIS_SSL:false}
+      repositories:
+        enabled: false
 
   security:
     user:
